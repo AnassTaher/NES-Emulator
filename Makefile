@@ -1,16 +1,14 @@
-# Do not modify this file, as it is overwritten by the default file in the
-
 IDIR=include
 ODIR=obj
 SRCDIR=src
 
-DEPS = $(wildcard $(IDIR)/*.h)
-SRCS = $(wildcard $(SRCDIR)/*.cpp)
-_OBJ = $(patsubst $(SRCDIR)/%,$(ODIR)/%,$(SRCS:.cpp=.o))	
+DEPS = $(wildcard $(IDIR)/*.hpp)
+SRCS = $(wildcard $(SRCDIR)/*.cc)
+_OBJ = $(patsubst $(SRCDIR)/%,$(ODIR)/%,$(SRCS:.cc=.o))	
 OBJ = $(filter-out $(ODIR)/main.o,$(_OBJ))
 
 CXX = g++
-override CPPFLAGS+=-I$(IDIR) -g -Wall -Wpedantic -std=c++11 -Wformat-extra-args -fPIE -Wno-deprecated
+override ccFLAGS+=-I$(IDIR) -g -Wall -Wpedantic -std=c++11 -Wformat-extra-args -fPIE -Wno-deprecated
 
 DEPS2 := $(OBJ:.o=.d)
 
@@ -18,12 +16,12 @@ $(OBJ) $(ODIR)/main.o: $(DEPS)
 
 -include $(DEPS2)
 
-$(ODIR)/%.o: $(SRCDIR)/%.cpp
+$(ODIR)/%.o: $(SRCDIR)/%.cc
 	+@[ -d $(ODIR) ] || mkdir -p $(ODIR)
-	$(CXX) -MMD $(CPPFLAGS) -c -o $@ $<
+	$(CXX) -MMD $(ccFLAGS) -c -o $@ $<
 
 main: $(OBJ) $(ODIR)/main.o
-	$(CXX) -o $@ $^ $(CPPFLAGS) $(LIBS)
+	$(CXX) -o $@ $^ $(ccFLAGS) $(LIBS)
 
 
 clean:
