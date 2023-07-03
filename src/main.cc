@@ -21,6 +21,7 @@ int main(int argc, char** argv){
 	FILE* fp = fopen(argv[1], "rb");
 	uint64_t size = getFileSize(fp);
 	cpu.loadRom(fp, size);
+	cpu.run();
 
 	fclose(fp);
 	return 0;

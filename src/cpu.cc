@@ -25,10 +25,25 @@ CPU::CPU(){
 		{ "CPX", &a::CPX, &a::IMM, 2 },{ "SBC", &a::SBC, &a::IZX, 6 },{ "???", &a::NOP, &a::IMP, 2 },{ "???", &a::XXX, &a::IMP, 8 },{ "CPX", &a::CPX, &a::ZP0, 3 },{ "SBC", &a::SBC, &a::ZP0, 3 },{ "INC", &a::INC, &a::ZP0, 5 },{ "???", &a::XXX, &a::IMP, 5 },{ "INX", &a::INX, &a::IMP, 2 },{ "SBC", &a::SBC, &a::IMM, 2 },{ "NOP", &a::NOP, &a::IMP, 2 },{ "???", &a::SBC, &a::IMP, 2 },{ "CPX", &a::CPX, &a::ABS, 4 },{ "SBC", &a::SBC, &a::ABS, 4 },{ "INC", &a::INC, &a::ABS, 6 },{ "???", &a::XXX, &a::IMP, 6 },
 		{ "BEQ", &a::BEQ, &a::REL, 2 },{ "SBC", &a::SBC, &a::IZY, 5 },{ "???", &a::XXX, &a::IMP, 2 },{ "???", &a::XXX, &a::IMP, 8 },{ "???", &a::NOP, &a::IMP, 4 },{ "SBC", &a::SBC, &a::ZPX, 4 },{ "INC", &a::INC, &a::ZPX, 6 },{ "???", &a::XXX, &a::IMP, 6 },{ "SED", &a::SED, &a::IMP, 2 },{ "SBC", &a::SBC, &a::ABY, 4 },{ "NOP", &a::NOP, &a::IMP, 2 },{ "???", &a::XXX, &a::IMP, 7 },{ "???", &a::NOP, &a::IMP, 4 },{ "SBC", &a::SBC, &a::ABX, 4 },{ "INC", &a::INC, &a::ABX, 7 },{ "???", &a::XXX, &a::IMP, 7 },
 	};
-  // lookup = {
-  //   {"BRK", &a::BRK, &a::IMM, 7}
-  // };
+}
 
+
+void CPU::run(){
+	readHeader();
+	std::cout << "Running..." << std::endl;
+	opcode = program[PC];
+	Instruct ins = lookup[opcode];
+	(this->*ins.addr)();
+	(this->*ins.op)();
+	execute();
+}
+
+void CPU::execute(){
+  std::cout << "Executing..." << std::endl;
+}
+
+void CPU::readHeader(){
+	std::cout << "Reading Header..." << std::endl;
 }
 
 void CPU::setFlag(Flags flag, bool value){
@@ -47,15 +62,14 @@ void CPU::printStatus(){
   std::cout << "Status: " << std::bitset<8>(status) << std::endl;
 }
 
+void CPU::printHex(std::string s, std::string delimiter){
+	std::cout << s << std::hex << std::uppercase << (int)(unsigned char)opcode << delimiter;
+}
+
 void CPU::loadRom(FILE* fp, uint64_t size){
   program = new uint8_t[size];
   fread(program, 1, size, fp);
 }
-
-void CPU::execute(){
-  
-}
-
 
 // Addressing Modes
 
