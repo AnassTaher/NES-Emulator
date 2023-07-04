@@ -30,7 +30,6 @@ CPU::CPU(){
 
 void CPU::run(){
 	readHeader();
-	std::cout << "Running..." << std::endl;
 	opcode = program[PC];
 	Instruct ins = lookup[opcode];
 	(this->*ins.addr)();
@@ -39,11 +38,13 @@ void CPU::run(){
 }
 
 void CPU::execute(){
-  std::cout << "Executing..." << std::endl;
 }
 
 void CPU::readHeader(){
-	std::cout << "Reading Header..." << std::endl;
+	CPU::Header* addr = &header;
+	memcpy(addr, program, sizeof(CPU::Header));
+	uint64_t total = (header.chr_rom_size * 8192) + (header.prg_rom_size * 16384);
+	std::cout << "Total: " << std::hex << total << std::endl;
 }
 
 void CPU::setFlag(Flags flag, bool value){
@@ -62,8 +63,8 @@ void CPU::printStatus(){
   std::cout << "Status: " << std::bitset<8>(status) << std::endl;
 }
 
-void CPU::printHex(std::string s, std::string delimiter){
-	std::cout << s << std::hex << std::uppercase << (int)(unsigned char)opcode << delimiter;
+void CPU::printHex(std::string s, std::string delimiter, uint8_t to_print){
+	std::cout << s << std::hex << std::uppercase << (int)(unsigned char)to_print << delimiter;
 }
 
 void CPU::loadRom(FILE* fp, uint64_t size){

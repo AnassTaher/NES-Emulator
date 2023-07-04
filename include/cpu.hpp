@@ -26,7 +26,7 @@ public:
 	bool getFlag(Flags flag);
 	void toggleFlag(Flags flag);
 	void printStatus();
-	void printHex(std::string s, std::string delimiter);
+	void printHex(std::string s, std::string delimiter, uint8_t to_print);
 
 	void run();
 	void execute();
