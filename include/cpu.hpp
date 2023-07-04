@@ -16,7 +16,7 @@ public:
 		C, Z, I, D, B, UNUSED, V, N
 	};
 
-	uint8_t mem[0xFFFF + 1];
+	std::array<uint8_t, 0xFFFF + 1> ram;
 	uint16_t address = 0x0000;
 	uint8_t opcode = 0x00;
 	uint8_t cycles = 0;
@@ -30,8 +30,11 @@ public:
 
 	void run();
 	void execute();
-	void readHeader();
-	void loadRom(FILE* fp, uint64_t size);
+	void readHeader(FILE* fp);
+	void reset();
+	uint8_t read(uint16_t address);
+	void write(uint16_t address, uint8_t data);
+	void loadRom(FILE* fp);
 
 	struct Header{
 		uint8_t magic[4];
