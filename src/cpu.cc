@@ -26,6 +26,8 @@ CPU::CPU(){
 		{ "BEQ", &a::BEQ, &a::REL, 2 },{ "SBC", &a::SBC, &a::IZY, 5 },{ "???", &a::XXX, &a::IMP, 2 },{ "???", &a::XXX, &a::IMP, 8 },{ "???", &a::NOP, &a::IMP, 4 },{ "SBC", &a::SBC, &a::ZPX, 4 },{ "INC", &a::INC, &a::ZPX, 6 },{ "???", &a::XXX, &a::IMP, 6 },{ "SED", &a::SED, &a::IMP, 2 },{ "SBC", &a::SBC, &a::ABY, 4 },{ "NOP", &a::NOP, &a::IMP, 2 },{ "???", &a::XXX, &a::IMP, 7 },{ "???", &a::NOP, &a::IMP, 4 },{ "SBC", &a::SBC, &a::ABX, 4 },{ "INC", &a::INC, &a::ABX, 7 },{ "???", &a::XXX, &a::IMP, 7 },
 	};
 
+	ram.resize(0xFFFF + 1);
+
 	for(uint8_t& num : ram)
 		num = 0;
 
@@ -59,8 +61,6 @@ void CPU::execute(){
 
 void CPU::readHeader(FILE* fp){
 	fread(&header, sizeof(CPU::Header), 1, fp);
-	// uint64_t total = (header.chr_rom_size * 8192) + (header.prg_rom_size * 16384);
-	// std::cout << "Total: " << std::hex << total << std::endl;
 }
 
 void CPU::setFlag(Flags flag, bool value){
@@ -87,51 +87,15 @@ void CPU::loadRom(FILE* fp){
 
 	readHeader(fp);
 
-	uint64_t size = (header.prg_rom_size * 16384);
+	uint64_t size = (header.prg_rom_size * 0x4000);
 	program = new uint8_t[size];
 	fread(program, sizeof(uint8_t), size, fp);
 
-	printHex("Prog: ", " ", program[0]);
-	// for(int i = 0; i < 3; i++){
-	// 	printHex("", " ", program[i]);
-	// }
-
-	// std::cout << std::endl;
-	std::cout << "Size = " << std::hex << size << std::endl;
-	uint64_t tot1 = 0x8000 + size;
-	uint64_t tot2 = 0xC000 + size;
-
-	std::cout << "Total 1 = " << std::hex << tot1 << std::endl;
-	std::cout << "Total 2 = " << std::hex << tot2 << std::endl;
-
-	ram.at(0xC000 + 0x4000 - 1) = 0x00;
-
-	size_t i = 0;
-	for(i = 0; i < size; i++){
-		ram.at(0x8000 + i) = program[i];
+	for(uint64_t i = 0; i < size; i++){
+		ram[0x8000 + i] = program[i];
+		// mirror only if one 16k bank
+		if(header.prg_rom_size == 1) ram[0xC000 + i] = program[i];
 	}
-	std::cout << "I = " << i << std::endl; 
-	for(i = 0; i < size - 1; i++){
-		ram.at(0xC000 + i) = program[i - 5];
-		// if(0xC000 + i - 3 >= 0xFFF0){
-		// 	std::cout << "i = " << std::hex << i << std::endl;
-		// }
-	}
-	std::cout << "I = " << i << std::endl;
-	ram.at(0xC000 + i - 1) = 0x00;
-
-
-	// mirror 0x800 - 0xBFFF to 0xC000 - 0xFFFF
-	// std::copy(program, program + size, std::begin(ram) + 0xc000 - 2);
-
-	// std::copy(program, program + size, std::begin(ram) + 0x8000);
-	// std::cout << "Program + size = " << std::hex << size + 0xC000 - 3 << std::endl;
-	// std::cout << "array size - " << std::hex << ram.size() << std::endl;
-	
-
-
-
-
 
 
 }

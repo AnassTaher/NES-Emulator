@@ -16,7 +16,7 @@ public:
 		C, Z, I, D, B, UNUSED, V, N
 	};
 
-	std::array<uint8_t, 0xFFFF + 1> ram;
+	std::vector<uint8_t> ram;
 	uint16_t address = 0x0000;
 	uint8_t opcode = 0x00;
 	uint8_t cycles = 0;
