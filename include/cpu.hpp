@@ -20,21 +20,22 @@ public:
 	uint16_t address = 0x0000;
 	uint8_t opcode = 0x00;
 	uint8_t cycles = 0;
-	uint8_t* program;
 		
 	void setFlag(Flags flag, bool value);
 	bool getFlag(Flags flag);
 	void toggleFlag(Flags flag);
 	void printStatus();
-	void printHex(std::string s, std::string delimiter, uint8_t to_print);
+	void printHex(std::string s, uint16_t to_print, std::string delimiter);
 
 	void run();
-	void execute();
+	void cycle();
 	void readHeader(FILE* fp);
 	void reset();
 	uint8_t read(uint16_t address);
 	void write(uint16_t address, uint8_t data);
 	void loadRom(FILE* fp);
+
+	void log();
 
 	struct Header{
 		uint8_t magic[4];

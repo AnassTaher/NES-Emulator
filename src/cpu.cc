@@ -1,9 +1,10 @@
 #include "cpu.hpp"
 #include <bitset>
+#include <iomanip>
+
+using namespace std;
 
 CPU::CPU(){
-  std::cout << "CPU Constructor" << std::endl;   
-
   // Initialize lookup table, stole this from https://www.youtube.com/watch?v=8XmxKPJDGU0&t=1072s
   using a = CPU;
 	lookup = 
@@ -49,14 +50,18 @@ void CPU::write(uint16_t addr, uint8_t data){
 }
 
 void CPU::run(){
-	opcode = program[PC];
-	Instruct ins = lookup[opcode];
-	(this->*ins.addr)();
-	(this->*ins.op)();
-	execute();
+	cycle();
 }
 
-void CPU::execute(){
+void CPU::cycle(){
+	log();
+	opcode = read(PC);
+	PC++;
+	Instruct ins = lookup[opcode];
+
+	(this->*ins.addr)();
+	(this->*ins.op)();
+
 }
 
 void CPU::readHeader(FILE* fp){
@@ -75,38 +80,66 @@ void CPU::toggleFlag(Flags flag){
   status = status ^ (1 << flag);
 }
 
-void CPU::printStatus(){
-  std::cout << "Status: " << std::bitset<8>(status) << std::endl;
-}
-
-void CPU::printHex(std::string s, std::string delimiter, uint8_t to_print){
-	std::cout << s << std::hex << std::uppercase << (int)(unsigned char)to_print << delimiter;
-}
 
 void CPU::loadRom(FILE* fp){
 
 	readHeader(fp);
 
 	uint64_t size = (header.prg_rom_size * 0x4000);
-	program = new uint8_t[size];
+	uint8_t* program = new uint8_t[size];
 	fread(program, sizeof(uint8_t), size, fp);
 
 	for(uint64_t i = 0; i < size; i++){
-		ram[0x8000 + i] = program[i];
+		write(0x8000 + i, program[i]);
 		// mirror only if one 16k bank
-		if(header.prg_rom_size == 1) ram[0xC000 + i] = program[i];
+		if(header.prg_rom_size == 1) write(0xC000 + i, program[i]);
 	}
 
 
 }
 
+void CPU::printStatus(){
+  cout << "Status: " << bitset<8>(status) << endl;
+}
+
+void CPU::printHex(string s, uint16_t to_print, string delimiter){
+	cout << s << setw(2) << setfill('0') << hex << uppercase << to_print << delimiter;
+}
+
+
+void CPU::log(){
+	// C000  4C F5 C5  JMP $C5F5                       A:00 X:00 Y:00 P:24 SP:FD PPU:  0, 21 CYC:7
+
+
+	printHex("", PC, "  ");
+	for(int i = 0; i < lookup[ram[PC]].cycles; i++){
+		printHex("", read(PC + i), " ");
+		
+	}
+	cout << "   ";
+	cout << lookup[ram[PC]].name << " ";
+	for(int i = 1; i < lookup[ram[PC]].cycles; i++){
+		printHex("", read(PC + i), " ");
+	}
+	cout << "          ";
+
+	cout << "A:" << setw(2) << setfill('0') << hex << uppercase << (int)A << " ";
+	cout << "X:" << setw(2) << setfill('0') << hex << uppercase << (int)X << " ";
+	cout << "Y:" << setw(2) << setfill('0') << hex << uppercase << (int)Y << " ";
+	cout << "P:" << status << " ";
+	cout << "SP:" << setw(2) << setfill('0') << hex << uppercase << (int)SP << " ";
+	cout << "CYC:" << (int)cycles << " ";
+
+	cout << endl;
+}
+
 // Addressing Modes
 
 void CPU::IMP(){
-
 }
 
 void CPU::IMM(){
+	address = ram[PC++];
 }
 
 void CPU::ZP0(){
@@ -268,7 +301,9 @@ void CPU::JSR(){
 }
 
 void CPU::LDA(){
-   
+  A = read(address);
+	setFlag(Flags::Z, A == 0);
+	setFlag(Flags::N, A & (1 << 7));
 }
 
 void CPU::LDX(){
