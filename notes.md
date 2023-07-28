@@ -6,8 +6,8 @@
 
 - 2A03
 - Storage: 64 KB
-- Adress range: 0x0000 - 0xFFFF
-- Stack range: 0x0100 - 0x01FF
+- Adress range: $0000 - $FFFF
+- Stack range: $0100 - $01FF
 
 ###### Registers
 
@@ -20,8 +20,9 @@
 
 ###### Misc
 
-- Reading CPU: Store contents from ROM into 0x8000 - 0xFFFF
+- Reading CPU: Store contents from ROM into $8000 - $FFFF
 - Get PC from 0xFFFC and 0xFFFD (little endian)
+- Zero page = $0000 - $00FF
 
 ---
 

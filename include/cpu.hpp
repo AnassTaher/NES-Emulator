@@ -7,7 +7,7 @@ class CPU{
 public:
 	CPU();
 	
-	uint16_t PC = 0x0010; // Skip header
+	uint16_t PC = 0x0000; 
 	uint8_t SP = 0xFD;  
 	uint8_t A = 0, X = 0, Y = 0;
 	uint8_t status = 0x00;
@@ -19,7 +19,8 @@ public:
 	std::vector<uint8_t> ram;
 	uint16_t address = 0x0000;
 	uint8_t opcode = 0x00;
-	uint8_t cycles = 0;
+	uint8_t fetched = 0x00;
+	uint8_t cycles = 0x07;
 		
 	void setFlag(Flags flag, bool value);
 	bool getFlag(Flags flag);
@@ -29,6 +30,7 @@ public:
 
 	void run();
 	void cycle();
+	uint8_t fetch();
 	void readHeader(FILE* fp);
 	void reset();
 	uint8_t read(uint16_t address);
@@ -57,6 +59,7 @@ public:
 	};
 
 	std::vector<Instruct> lookup;
+	std::map<int, int> disass_map;
 
 
 	void IMP();	void IMM();	

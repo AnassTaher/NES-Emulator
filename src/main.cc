@@ -21,7 +21,7 @@ int main(int argc, char** argv){
 	FILE* fp = fopen(argv[1], "rb");
 	cpu.loadRom(fp);
 	cpu.reset();
-	cpu.PC = 0xC754;
+	cpu.PC = 0xC000;
 	cpu.run();
 
 	fclose(fp);
