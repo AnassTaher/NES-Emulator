@@ -16,7 +16,13 @@
 - > A - Accumulator (8 bit)
 - > X - Index Register X (8 bit)
 - > Y - Index Register Y (8 bit)
-- > P - Processor Status (8 bit)<br> 7 6 5 4 3 2 1 0<br> N V - B D I Z C<br> N - Negative<br> V - Overflow<br> B - Break<br> D - Decimal<br> I - Interrupt Disable<br> Z - Zero<br> C - Carry
+
+- > P - Processor Status (8 bit)<br><br>
+N - Negative V - Overflow<br> U - Unused<br> B - Break<br> D - Decimal<br> I - Interrupt Disable<br> Z - Zero<br> C - Carry
+<pre>
+7 6 5 4 3 2 1 0 
+N V U B D I Z C
+</pre>
 
 ###### Misc
 

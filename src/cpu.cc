@@ -99,7 +99,7 @@ CPU::CPU(){
 void CPU::reset(){
 	status = 0x0000;
 	setFlag(U, true);
-	setFlag(Z, true); // remove this later, its only for nestest
+	setFlag(I, true); // remove this later, its only for nestest
 	A = X = Y = 0;
 	SP = 0xFD;
 	PC = ram[0xFFFC] | (ram[0xFFFD] << 8);
@@ -125,7 +125,7 @@ uint8_t CPU::pop(){
 
 void CPU::run(){
 	int i = 0;
-	while(i < 10){
+	while(i < 15){
 		// if(cycles == 0) i++;
 		cycle();
 		// cycles--;
@@ -138,15 +138,19 @@ void CPU::cycle(){
 	// if(cycles != 0) return;
 
 	opcode = read(PC);
+	log_pc = PC;
+	PC++;
 	Instruct ins = lookup[opcode];
 	(this->*ins.addr)();
 	fetched = fetch();
+
 	log();
 	(this->*ins.op)();
-	cycles += ins.cycles;
+
 	if(ins.name != "JMP" && ins.name != "JSR" && ins.name != "RTS" && ins.name != "RTI"){
-		PC += (disass_map[opcode]);
+		PC += (disass_map[opcode] - 1);
 	}
+	cycles += ins.cycles;
 }
 
 uint8_t CPU::fetch(){
@@ -161,47 +165,47 @@ void CPU::IMP(){
 }
 
 void CPU::IMM(){
-	address = PC + 1;
+	address = PC;
 }
 
 void CPU::ZP0(){
-	address = read(PC + 1) % 256;
+	address = read(PC) % 256;
 }
 
 void CPU::ZPX(){
-	address = (read(PC + 1) + X) % 256;
+	address = (read(PC) + X) % 256;
 }
 
 void CPU::ZPY(){
-	address = (read(PC + 1) + Y) % 256;
+	address = (read(PC) + Y) % 256;
 }
 
 void CPU::REL(){
-
+	address = PC;
 }
 
 void CPU::ABS(){
-	address = read(PC + 1) | (read(PC + 2) << 8);
+	address = read(PC) | (read(PC + 1) << 8);
 }
 
 void CPU::ABX(){
-	address = (read(PC + 1) | (read(PC + 2) << 8)) + X;
+	address = (read(PC) | (read(PC + 1) << 8)) + X;
 }
 
 void CPU::ABY(){
-	address = (read(PC + 1) | (read(PC + 2) << 8)) + Y;
+	address = (read(PC) | (read(PC + 1) << 8)) + Y;
 }
 
 void CPU::IND(){
-	address = read((read(PC + 1)) % 256) | read((read(PC + 2)) % 256) << 8;
+	address = read((read(PC)) % 256) | read((read(PC + 1)) % 256) << 8;
 }
 
 void CPU::IZX(){
-	address = read((read(PC + 1) + X) % 256) | read((read(PC + 2) + X) % 256) << 8;
+	address = read((read(PC) + X) % 256) | read((read(PC + 1) + X) % 256) << 8;
 }
 
 void CPU::IZY(){
-	address = read((read(PC + 1) + Y) % 256) | read((read(PC + 2) + Y) % 256) << 8;
+	address = read((read(PC) + Y) % 256) | read((read(PC + 1) + Y) % 256) << 8;
 }
 
 // Instructions
@@ -223,7 +227,8 @@ void CPU::BCC(){
 }
 
 void CPU::BCS(){
-  
+	if(getFlag(C))
+		PC = address + fetched;
 }
 
 void CPU::BEQ(){
@@ -259,7 +264,7 @@ void CPU::BVS(){
 }
 
 void CPU::CLC(){
-   
+	setFlag(C, false);
 }
 
 void CPU::CLD(){
@@ -326,20 +331,20 @@ void CPU::JSR(){
 
 void CPU::LDA(){
   A = fetched;
-	setFlag(Flags::Z, A == 0);
-	setFlag(Flags::N, A & (1 << 7));
+	setFlag(Z, A == 0);
+	setFlag(N, A & (1 << 7));
 }
 
 void CPU::LDX(){
 	X = fetched;
-	setFlag(Flags::Z, X == 0);
-	setFlag(Flags::N, X & (1 << 7));
+	setFlag(Z, X == 0);
+	setFlag(N, X & (1 << 7));
 }
 
 void CPU::LDY(){
 	Y = fetched;
-	setFlag(Flags::Z, Y == 0);
-	setFlag(Flags::N, Y & (1 << 7));
+	setFlag(Z, Y == 0);
+	setFlag(N, Y & (1 << 7));
 }
 
 void CPU::LSR(){
@@ -391,15 +396,15 @@ void CPU::SBC(){
 }
 
 void CPU::SEC(){
-	setFlag(Flags::C, true);
+	setFlag(C, true);
 }
 
 void CPU::SED(){
-	setFlag(Flags::D, true);
+	setFlag(D, true);
 }
 
 void CPU::SEI(){
-	setFlag(Flags::I, true);
+	setFlag(I, true);
 }
 
 void CPU::STA(){

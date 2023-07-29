@@ -10,8 +10,11 @@ void CPU::readHeader(FILE* fp){
 	fread(&header, sizeof(CPU::Header), 1, fp);
 }
 
-void CPU::setFlag(Flags flag, bool value){
-  status = status | (value << flag);
+void CPU::setFlag(Flags flag, bool v){
+  if(v)
+    status = status | (v << flag);
+  else
+    status = status & ~(1 << flag);
 }
 
 bool CPU::getFlag(Flags flag){
@@ -47,16 +50,15 @@ void CPU::printHex(string s, uint16_t to_print, string delimiter){
 }
 
 void CPU::log(){
-	// C000  4C F5 C5  JMP $C5F5                       A:00 X:00 Y:00 P:24 SP:FD PPU:  0, 21 CYC:7
-
-	printHex("", PC, "  ");
+	
+	printHex("", log_pc, "  ");
 	int len_opcodes = 9;
 	string s = "";
 	
 	stringstream ss;
 	ss << hex << uppercase << int(opcode) << " ";
 	for(int i = 0; i < disass_map[opcode] - 1; i++){
-		ss << hex << uppercase << int(read(PC + i + 1)) << " ";
+		ss << hex << uppercase << int(read(log_pc + i + 1)) << " ";
 	}
 	s += ss.str();
 	

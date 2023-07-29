@@ -1,8 +1,6 @@
 #pragma once
 #include "common.hpp"
 
-
-
 class CPU{
 public:
 	CPU();
@@ -22,6 +20,7 @@ public:
 	uint8_t fetched = 0x00;
 	uint8_t cycles = 0x07;
 	
+	uint16_t log_pc = 0x00;
 	void setFlag(Flags flag, bool value);
 	bool getFlag(Flags flag);
 	void toggleFlag(Flags flag);
