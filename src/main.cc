@@ -1,13 +1,15 @@
 #include <iostream>
 #include "cpu.hpp"
+#include <stdlib.h>
 
 using namespace std;
 
-uint64_t getFileSize(FILE* fp){
-	fseek(fp, 0, SEEK_END);
-	uint64_t size = ftell(fp);
-	rewind(fp);
-	return size;
+void printProgram(vector<uint8_t> ram){
+
+	for(size_t i = 0xC000; i < ram.size(); i++){
+		printf("%02X ", ram[i]);
+	}
+	printf("\n");
 }
 
 int main(int argc, char** argv){
@@ -22,6 +24,7 @@ int main(int argc, char** argv){
 	cpu.loadRom(fp);
 	cpu.reset();
 	cpu.PC = 0xC000;
+	// printProgram(cpu.ram);
 	cpu.run();
 
 	fclose(fp);

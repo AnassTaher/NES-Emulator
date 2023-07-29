@@ -13,7 +13,7 @@ public:
 	uint8_t status = 0x00;
 	
 	enum Flags{
-		C, Z, I, D, B, UNUSED, V, N
+		C, Z, I, D, B, U, V, N
 	};
 
 	std::vector<uint8_t> ram;
@@ -21,7 +21,7 @@ public:
 	uint8_t opcode = 0x00;
 	uint8_t fetched = 0x00;
 	uint8_t cycles = 0x07;
-		
+	
 	void setFlag(Flags flag, bool value);
 	bool getFlag(Flags flag);
 	void toggleFlag(Flags flag);
@@ -33,6 +33,8 @@ public:
 	uint8_t fetch();
 	void readHeader(FILE* fp);
 	void reset();
+	void push(uint8_t data);
+	uint8_t pop();
 	uint8_t read(uint16_t address);
 	void write(uint16_t address, uint8_t data);
 	void loadRom(FILE* fp);

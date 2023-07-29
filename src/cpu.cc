@@ -1,7 +1,5 @@
 #include "cpu.hpp"
-#include <bitset>
-#include <iomanip>
-#include <sstream>
+
 
 using namespace std;
 
@@ -33,9 +31,10 @@ CPU::CPU(){
 	for(uint8_t& num : ram)
 		num = 0;
 
-	// bytes is a map that contains each opcode and how many bytes that opcode is
+	// map that contains how many bytes each opcode is
 
 	disass_map = { 
+		
 		{0x69, 2}, {0x65, 2}, {0x75, 2}, {0x6D, 3}, {0x7D, 3}, {0x79, 3}, {0x61, 2}, {0x71, 2},	
 		{0x29, 2}, {0x25, 2}, {0x35, 2}, {0x2D, 3}, {0x3D, 3}, {0x39, 3}, {0x21, 2}, {0x31, 2},
 		{0x0A, 1}, {0x06, 2}, {0x16, 2}, {0x0E, 3}, {0x1E, 3},
@@ -53,35 +52,54 @@ CPU::CPU(){
 		{0xD8, 1},
 		{0x58, 1},
 		{0xB8, 1},
+		{0xC9, 2}, {0xC5, 2}, {0xD5, 2}, {0xCD, 3}, {0xDD, 3}, {0xD9, 3}, {0xC1, 2}, {0xD1, 2},
+		{0xE0, 2}, {0xE4, 2}, {0xEC, 3}, 
+		{0xC0, 2}, {0xC4, 2}, {0xCC, 3}, 
+		{0xC6, 2}, {0xD6, 2}, {0xCE, 3}, {0xDE, 3}, 
 		{0xCA, 1},
 		{0x88, 1},
+		{0x49, 2}, {0x45, 2}, {0x55, 2}, {0x4D, 3}, {0x5D, 3}, {0x59, 3}, {0x41, 2}, {0x51, 2},
+		{0xE6, 2}, {0xF6, 2}, {0xEE, 3}, {0xFE, 3},
 		{0xE8, 1},
 		{0xC8, 1},
-		{0xC9, 2}, {0xC5, 2}, {0xD5, 2}, {0xCD, 3}, {0xDD, 3}, {0xD9, 3}, {0xC1, 2}, {0xD1, 2},
-		{0xE0, 2}, {0xE4, 2}, {0xEC, 3},
-		{0xC0, 2}, {0xC4, 2}, {0xCC, 3},
-		{0xC6, 2}, {0xD6, 2}, {0xCE, 3}, {0xDE, 3},
-		{0x49, 2}, {0x45, 2}, {0x55, 2}, {0x4D, 3}, {0x5D, 3}, {0x59, 3}, {0x41, 2}, {0x51, 2},
-		{0x4A, 1}, {0x46, 2}, {0x56, 2}, {0x4E, 3}, {0x5E, 3},
-		{0xE6, 2}, {0xF6, 2}, {0xEE, 3}, {0xFE, 3},
-		{0xE9, 2}, {0xE5, 2}, {0xF5, 2}, {0xED, 3}, {0xFD, 3}, {0xF9, 3}, {0xE1, 2}, {0xF1, 2},
-		{0xEA, 1},
 		{0x4C, 3}, {0x6C, 3},
 		{0x20, 3},
-		{0x40, 1},
-		{0x60, 1},
+		{0xA9, 2}, {0xA5, 2}, {0xB5, 2}, {0xAD, 3}, {0xBD, 3}, {0xB9, 3}, {0xA1, 2}, {0xB1, 2},
+		{0xA2, 2}, {0xA6, 2}, {0xB6, 2}, {0xAE, 3}, {0xBE, 3},
+		{0xA0, 2}, {0xA4, 2}, {0xB4, 2}, {0xAC, 3}, {0xBC, 3}, 
+		{0x4A, 1}, {0x46, 2}, {0x56, 2}, {0x4E, 3}, {0x5E, 3},
+		{0xEA, 1},
+		{0x09, 2}, {0x05, 2}, {0x15, 2}, {0x0D, 3}, {0x1D, 3}, {0x19, 3}, {0x01, 2}, {0x11, 2},
 		{0x48, 1},
 		{0x08, 1},
 		{0x68, 1},
 		{0x28, 1},
-		{0x86, 2}, {0x96, 2}, {0x8E, 3}
-	};
+		{0x2A, 1}, {0x26, 2}, {0x36, 2}, {0x2E, 3}, {0x3E, 3},
+		{0x6A, 1}, {0x66, 2}, {0x76, 2}, {0x6E, 3}, {0x7E, 3},
+		{0x40, 1},
+		{0x60, 1},
+		{0xE9, 2}, {0xE5, 2}, {0xF5, 2}, {0xED, 3}, {0xFD, 3}, {0xF9, 3}, {0xE1, 2}, {0xF1, 2},
+		{0x38, 1},
+		{0xF8, 1},
+		{0x78, 1},
+		{0x85, 2}, {0x95, 2}, {0x8D, 3}, {0x9D, 3}, {0x99, 3}, {0x81, 2}, {0x91, 2},
+		{0x86, 2}, {0x96, 2}, {0x8E, 3},
+		{0x84, 2}, {0x94, 2}, {0x8C, 3},
+		{0xAA, 1},
+		{0xA8, 1},
+		{0xBA, 1},
+		{0x8A, 1},
+		{0x9A, 1},
+		{0x98, 1}
 
+	};
 
 }
 
 void CPU::reset(){
-	status = 0x34;
+	status = 0x0000;
+	setFlag(U, true);
+	setFlag(Z, true); // remove this later, its only for nestest
 	A = X = Y = 0;
 	SP = 0xFD;
 	PC = ram[0xFFFC] | (ram[0xFFFD] << 8);
@@ -95,9 +113,19 @@ void CPU::write(uint16_t addr, uint8_t data){
 	ram[addr] = data;
 }
 
+void CPU::push(uint8_t data){
+	write(0x100 + SP, data);
+	SP--;
+}
+
+uint8_t CPU::pop(){
+	SP++;
+	return read(0x100 + SP);
+}
+
 void CPU::run(){
 	int i = 0;
-	while(i < 5){
+	while(i < 10){
 		// if(cycles == 0) i++;
 		cycle();
 		// cycles--;
@@ -110,96 +138,19 @@ void CPU::cycle(){
 	// if(cycles != 0) return;
 
 	opcode = read(PC);
-	PC++;
 	Instruct ins = lookup[opcode];
-
 	(this->*ins.addr)();
-	log();
 	fetched = fetch();
+	log();
 	(this->*ins.op)();
 	cycles += ins.cycles;
-	PC += disass_map[opcode] - 1;
+	if(ins.name != "JMP" && ins.name != "JSR" && ins.name != "RTS" && ins.name != "RTI"){
+		PC += (disass_map[opcode]);
+	}
 }
 
 uint8_t CPU::fetch(){
 	return read(address);
-}
-
-void CPU::readHeader(FILE* fp){
-	fread(&header, sizeof(CPU::Header), 1, fp);
-}
-
-void CPU::setFlag(Flags flag, bool value){
-  status = status | (value << flag);
-}
-
-bool CPU::getFlag(Flags flag){
-  return status & (1 << flag);
-}
-
-void CPU::toggleFlag(Flags flag){
-  status = status ^ (1 << flag);
-}
-
-
-void CPU::loadRom(FILE* fp){
-
-	readHeader(fp);
-
-	uint64_t size = (header.prg_rom_size * 0x4000);
-	uint8_t* program = new uint8_t[size];
-	fread(program, sizeof(uint8_t), size, fp);
-
-	for(uint64_t i = 0; i < size; i++){
-		write(0x8000 + i, program[i]);
-		// mirror only if one 16k bank
-		if(header.prg_rom_size == 1) write(0xC000 + i, program[i]);
-	}
-
-
-}
-
-void CPU::printStatus(){
-  cout << "Status: " << bitset<8>(status) << endl;
-}
-
-void CPU::printHex(string s, uint16_t to_print, string delimiter){
-	cout << s << setw(2) << setfill('0') << hex << uppercase << to_print << delimiter;
-}
-
-
-void CPU::log(){
-	// C000  4C F5 C5  JMP $C5F5                       A:00 X:00 Y:00 P:24 SP:FD PPU:  0, 21 CYC:7
-
-	printHex("", PC - 1, "  ");
-	int len_opcodes = 9;
-	string s = "";
-	
-	stringstream ss;
-	ss << hex << uppercase << int(opcode) << " ";
-	for(int i = 0; i < disass_map[opcode] - 1; i++){
-		ss << hex << uppercase << int(read(PC + i)) << " ";
-	}
-	s += ss.str();
-	
-	cout << setw(len_opcodes) << setfill(' ') << left << s;
-	s = "";
-	s += lookup[ram[PC - 1]].name + " ";
-	ss = stringstream();
-	ss << flush;
-	if(address == 0) ss << setw(2) << setfill('0') << hex << uppercase << (int)address << " ";
-	else ss << hex << uppercase << (int)address << " ";
-	s += ss.str();
-	cout << setw(10) << setfill(' ') << left << s;
-
-	cout << setw(10) << setfill(' ') << left << " " \
-	<< "A:" << setw(2) << setfill('0') << hex << uppercase << (int)A << " " \
-	<< "X:" << setw(2) << setfill('0') << hex << uppercase << (int)X << " " \
-	<< "Y:" << setw(2) << setfill('0') << hex << uppercase << (int)Y << " " \
-	<< "P:" << setw(2) << status << " " \
-	<< "SP:" << setw(2) << setfill('0') << (int)SP << " " << flush \
-	<< "CYC: " << dec << (int)cycles;	\
-	cout << endl;
 }
 
 // Addressing Modes
@@ -210,19 +161,19 @@ void CPU::IMP(){
 }
 
 void CPU::IMM(){
-	address = PC;
+	address = PC + 1;
 }
 
 void CPU::ZP0(){
-	address = read(PC);
+	address = read(PC + 1) % 256;
 }
 
 void CPU::ZPX(){
-	address = (read(PC) + X) % 256;
+	address = (read(PC + 1) + X) % 256;
 }
 
 void CPU::ZPY(){
-	address = (read(PC) + Y) % 256;
+	address = (read(PC + 1) + Y) % 256;
 }
 
 void CPU::REL(){
@@ -230,27 +181,27 @@ void CPU::REL(){
 }
 
 void CPU::ABS(){
-	address = read(PC) | (read(PC + 1) << 8);
+	address = read(PC + 1) | (read(PC + 2) << 8);
 }
 
 void CPU::ABX(){
-	address = (read(PC) | (read(PC + 1) << 8)) + X;
+	address = (read(PC + 1) | (read(PC + 2) << 8)) + X;
 }
 
 void CPU::ABY(){
-	address = (read(PC) | (read(PC + 1) << 8)) + Y;
+	address = (read(PC + 1) | (read(PC + 2) << 8)) + Y;
 }
 
 void CPU::IND(){
-	address = read((read(PC)) % 256) | read((read(PC + 1)) % 256) << 8;
+	address = read((read(PC + 1)) % 256) | read((read(PC + 2)) % 256) << 8;
 }
 
 void CPU::IZX(){
-	address = read((read(PC) + X) % 256) | read((read(PC + 1) + X) % 256) << 8;
+	address = read((read(PC + 1) + X) % 256) | read((read(PC + 2) + X) % 256) << 8;
 }
 
 void CPU::IZY(){
-	address = read((read(PC) + Y) % 256) | read((read(PC + 1) + Y) % 256) << 8;
+	address = read((read(PC + 1) + Y) % 256) | read((read(PC + 2) + Y) % 256) << 8;
 }
 
 // Instructions
@@ -272,7 +223,7 @@ void CPU::BCC(){
 }
 
 void CPU::BCS(){
-   
+  
 }
 
 void CPU::BEQ(){
@@ -368,7 +319,9 @@ void CPU::JMP(){
 }
 
 void CPU::JSR(){
-   
+	push(PC >> 8); // upper byte
+	push(PC); // lower byte
+	PC = (read(PC) | (read(PC + 1) << 8));
 }
 
 void CPU::LDA(){
@@ -438,19 +391,19 @@ void CPU::SBC(){
 }
 
 void CPU::SEC(){
-   
+	setFlag(Flags::C, true);
 }
 
 void CPU::SED(){
-   
+	setFlag(Flags::D, true);
 }
 
 void CPU::SEI(){
-   
+	setFlag(Flags::I, true);
 }
 
 void CPU::STA(){
-   
+	ram[address] = A;
 }
 
 void CPU::STX(){
@@ -458,7 +411,7 @@ void CPU::STX(){
 }
 
 void CPU::STY(){
-   
+	ram[address] = Y;
 }
 
 void CPU::TAX(){
