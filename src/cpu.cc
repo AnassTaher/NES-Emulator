@@ -125,7 +125,7 @@ uint8_t CPU::pop(){
 
 void CPU::run(){
 	int i = 0;
-	while(i < 15){
+	while(i < 21){
 		// if(cycles == 0) i++;
 		cycle();
 		// cycles--;
@@ -229,16 +229,39 @@ void CPU::ASL(){
 }
 
 void CPU::BCC(){
-   
+	if(getFlag(C))
+		return;
+
+	cycles++;
+	uint16_t rel = address + fetched;
+	if((rel & 0xFF00) != (PC & 0xFF00))
+		cycles++;
+
+	PC = rel;
 }
 
 void CPU::BCS(){
-	if(getFlag(C))
-		PC = address + fetched;
+	if(!getFlag(C))
+		return;
+
+	cycles++;
+	uint16_t rel = address + fetched;
+	if((rel & 0xFF00) != (PC & 0xFF00))
+		cycles++;
+
+	PC = rel;
 }
 
 void CPU::BEQ(){
-   
+	if(!getFlag(Z))
+		return;
+
+	cycles++;
+	uint16_t rel = address + fetched;
+	if((rel & 0xFF00) != (PC & 0xFF00))
+		cycles++;
+
+	PC = rel;
 }
 
 void CPU::BIT(){

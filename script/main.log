@@ -7,9 +7,24 @@ C5FD  20 2D C7  JSR C72D            A:00 X:00 Y:00 P:26 SP:FD CYC: 21
 C72D  EA        NOP                 A:00 X:00 Y:00 P:26 SP:FB CYC: 27
 C72E  38        SEC                 A:00 X:00 Y:00 P:26 SP:FB CYC: 29
 C72F  B0 04     BCS C730            A:00 X:00 Y:00 P:27 SP:FB CYC: 31
-C735  EA        NOP                 A:00 X:00 Y:00 P:27 SP:FB CYC: 33
-C736  18        CLC                 A:00 X:00 Y:00 P:27 SP:FB CYC: 35
-C737  B0 03     BCS C738            A:00 X:00 Y:00 P:26 SP:FB CYC: 37
-C739  4C 40 C7  JMP C740            A:00 X:00 Y:00 P:26 SP:FB CYC: 39
-C740  EA        NOP                 A:00 X:00 Y:00 P:26 SP:FB CYC: 42
-C741  38        SEC                 A:00 X:00 Y:00 P:26 SP:FB CYC: 44
+C735  EA        NOP                 A:00 X:00 Y:00 P:27 SP:FB CYC: 34
+C736  18        CLC                 A:00 X:00 Y:00 P:27 SP:FB CYC: 36
+C737  B0 03     BCS C738            A:00 X:00 Y:00 P:26 SP:FB CYC: 38
+C739  4C 40 C7  JMP C740            A:00 X:00 Y:00 P:26 SP:FB CYC: 40
+C740  EA        NOP                 A:00 X:00 Y:00 P:26 SP:FB CYC: 43
+C741  38        SEC                 A:00 X:00 Y:00 P:26 SP:FB CYC: 45
+C742  90 03     BCC C743            A:00 X:00 Y:00 P:27 SP:FB CYC: 47
+C744  4C 4B C7  JMP C74B            A:00 X:00 Y:00 P:27 SP:FB CYC: 49
+C74B  EA        NOP                 A:00 X:00 Y:00 P:27 SP:FB CYC: 52
+C74C  18        CLC                 A:00 X:00 Y:00 P:27 SP:FB CYC: 54
+C74D  90 04     BCC C74E            A:00 X:00 Y:00 P:26 SP:FB CYC: 56
+C74F  A2 04     LDX C750            A:00 X:00 Y:00 P:26 SP:FB CYC: 58
+C751  86 00     STX 00              A:00 X:40 Y:00 P:24 SP:FB CYC: 60
+C753  EA        NOP                 A:00 X:40 Y:00 P:24 SP:FB CYC: 63
+C754  A9 00     LDA C755            A:00 X:40 Y:00 P:24 SP:FB CYC: 65
+C756  F0 04     BEQ C757            A:00 X:40 Y:00 P:26 SP:FB CYC: 67
+C758  A2 05     LDX C759            A:00 X:40 Y:00 P:26 SP:FB CYC: 69
+C75A  86 00     STX 00              A:00 X:50 Y:00 P:24 SP:FB CYC: 71
+C75C  EA        NOP                 A:00 X:50 Y:00 P:24 SP:FB CYC: 74
+C75D  A9 40     LDA C75E            A:00 X:50 Y:00 P:24 SP:FB CYC: 76
+C75F  F0 03     BEQ C760            A:40 X:50 Y:00 P:24 SP:FB CYC: 78

@@ -73,7 +73,7 @@ def main():
     if code != -1:
       nes_string = "NES: "
       main_string = "MAIN: "
-      print(colored(f"Error at line {i} Code: {code}\n\n", "red"))
+      print(colored(f"Error at line {i + 1} Code: {code}\n\n", "red"))
       for i in range(len(nes_results)):
         color = "red" if i == code else "cyan"
         print(colored(f"{nes_results[i]} ", color), end="")
