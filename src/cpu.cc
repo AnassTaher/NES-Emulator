@@ -211,15 +211,21 @@ void CPU::IZY(){
 // Instructions
 
 void CPU::ADC(){
-   
+	uint16_t temp = A + fetched + getFlag(C);
+	setFlag(C, temp > 0xFF);
+	setFlag(Z, A == 0);
+	setFlag(N, temp & (1 << 7));
+	setFlag(V, (~(A ^ fetched) & (A ^ temp)) & 0x80); // no idea whats going on here
+	A = temp & 0xFF;
 }
 
 void CPU::AND(){
-   
+	A &= fetched;
+	setFlag(Z, A == 0);
+	setFlag(N, A & (1 << 7));
 }
 
 void CPU::ASL(){
-   
 }
 
 void CPU::BCC(){

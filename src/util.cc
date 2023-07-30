@@ -58,18 +58,17 @@ void CPU::log(){
 	stringstream ss;
 	ss << hex << uppercase << int(opcode) << " ";
 	for(int i = 0; i < disass_map[opcode] - 1; i++){
-		ss << hex << uppercase << int(read(log_pc + i + 1)) << " ";
+		ss << setw(2) << setfill('0') << hex << uppercase << int(read(log_pc + i + 1)) << " ";
 	}
 	s += ss.str();
 	
-	cout << setw(len_opcodes) << setfill(' ') << left << s;
+	cout << setw(len_opcodes + 1)<< setfill(' ') << left << s;
 	s = "";
 	s += lookup[opcode].name + " ";
 	ss = stringstream();
 	ss << flush;
-	if(address == 0) ss << setw(2) << setfill('0') << hex << uppercase << (int)address << " ";
-	else if(disass_map[opcode] == 1) ss << setw(2) << setfill(' ') << " ";
-	else ss << hex << uppercase << (int)address << " ";
+	if(disass_map[opcode] == 1) ss << setw(2) << setfill(' ') << " ";
+	else  ss << setw(2) << setfill('0') << hex << uppercase << (int)address << " ";
 	s += ss.str();
 	cout << setw(10) << setfill(' ') << left << s;
 
