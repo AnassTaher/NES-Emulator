@@ -190,22 +190,39 @@ void CPU::ABS(){
 
 void CPU::ABX(){
 	address = (read(PC) | (read(PC + 1) << 8)) + X;
+	
+	if ((address & 0xFF00) != (read(PC + 1) << 8)) 
+		page_crossed = true;
 }
 
 void CPU::ABY(){
 	address = (read(PC) | (read(PC + 1) << 8)) + Y;
+
+	if ((address & 0xFF00) != (read(PC + 1) << 8)) 
+		page_crossed = true;
 }
 
 void CPU::IND(){
-	address = read((read(PC)) % 256) | read((read(PC + 1)) % 256) << 8;
+
+	uint16_t ptr = (read(PC) | read(PC + 1) << 8);
+
+	// https://www.nesdev.org/6502bugs.txt
+	if(read(PC) == 0x00FF) // if at the end of a page
+		address = read(ptr) | (read(ptr & 0xFF00) << 8);
+	else
+		address = read(ptr) | read(ptr + 1) << 8;
+
 }
 
 void CPU::IZX(){
-	address = read((read(PC) + X) % 256) | read((read(PC + 1) + X) % 256) << 8;
+	address = (read(PC + X) | read(PC + X + 1) << 8);
 }
 
 void CPU::IZY(){
-	address = read((read(PC) + Y) % 256) | read((read(PC + 1) + Y) % 256) << 8;
+	address = (read(PC + Y) | read(PC + Y + 1) << 8);
+
+	if((address & 0xFF00) != (read(PC + 1) << 8)) 
+		page_crossed = true;
 }
 
 // Instructions
