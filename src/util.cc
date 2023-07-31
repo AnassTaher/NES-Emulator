@@ -73,7 +73,7 @@ void CPU::log(){
 	cout << setw(10) << setfill(' ') << left << s;
 
 	cout << setw(10) << setfill(' ') << left << " " \
-	<< "A:" << setw(2) << setfill('0') << hex << uppercase << (int)A << " " \
+	<< "A:" << setw(2) << setfill('0') << right << hex << uppercase << (int)A << " " \
 	<< "X:" << setw(2) << setfill('0') << hex << uppercase << (int)X << " " \
 	<< "Y:" << setw(2) << setfill('0') << hex << uppercase << (int)Y << " " \
 	<< "P:" << setw(2) << setfill('0') << hex << uppercase << (int)status << " " \

@@ -126,7 +126,7 @@ uint8_t CPU::pop(){
 
 void CPU::run(){
 	int i = 0;
-	while(i < 60){
+	while(i < 500){
 		// if(cycles == 0) i++;
 		cycle();
 		// cycles--;
@@ -245,6 +245,17 @@ void CPU::AND(){
 }
 
 void CPU::ASL(){
+	uint8_t	temp = fetched;
+	if(opcode == 0x0A) temp = A;
+	
+	setFlag(C, temp & (1 << 7));
+	temp <<= 1;
+	setFlag(Z, A == 0);
+	setFlag(N, temp & (1 << 7));
+
+	if(opcode == 0x0A) A = temp;
+	else write(address, temp);
+
 }
 
 void CPU::BCC(){
@@ -376,43 +387,63 @@ void CPU::CLV(){
 }
 
 void CPU::CMP(){
-   
+  setFlag(C, A >= fetched);
+	setFlag(Z, A == fetched);
+	setFlag(N, (A - fetched) & (1 << 7));
 }
 
 void CPU::CPX(){
-   
+  setFlag(C, X >= fetched);
+	setFlag(Z, X == fetched);
+	setFlag(N, (X - fetched) & (1 << 7));  
 }
 
 void CPU::CPY(){
-   
+  setFlag(C, Y >= fetched);
+	setFlag(Z, Y == fetched);
+	setFlag(N, (Y - fetched) & (1 << 7));   
 }
 
 void CPU::DEC(){
-   
+  write(address, fetched - 1);
+	setFlag(Z, fetched - 1 == 0);
+	setFlag(N, (fetched - 1) & (1 << 7));
 }
 
 void CPU::DEX(){
-   
+  X--;
+	setFlag(Z, X == 0);
+	setFlag(N, X & (1 << 7));
 }
 
 void CPU::DEY(){
-   
+  Y--;
+	setFlag(Z, Y == 0);
+	setFlag(N, Y & (1 << 7));  
 }
 
 void CPU::EOR(){
-   
+	A ^= fetched;
+	setFlag(Z, A == 0);
+	setFlag(N, A & (1 << 7));
 }
 
 void CPU::INC(){
-   
+	write(address, fetched + 1);
+	setFlag(Z, fetched + 1 == 0);
+	setFlag(N, (fetched + 1) & (1 << 7));
 }
 
 void CPU::INX(){
-   
+  X++;
+	setFlag(Z, X == 0);
+	setFlag(N, X & (1 << 7));
 }
 
 void CPU::INY(){
-   
+  Y++;
+	setFlag(Z, Y == 0);
+	setFlag(N, Y & (1 << 7));
 }
 
 void CPU::JMP(){
@@ -456,7 +487,7 @@ void CPU::ORA(){
 }
 
 void CPU::PHA(){
-  push(A);
+	push(A & ~(1 << 4)); 
 }
 
 void CPU::PHP(){
@@ -472,7 +503,8 @@ void CPU::PLA(){
 }
 
 void CPU::PLP(){
-	status = pop();
+	// nestest requires status to have unused flag set
+	status = pop() | (1 << U);
 }
 
 void CPU::ROL(){

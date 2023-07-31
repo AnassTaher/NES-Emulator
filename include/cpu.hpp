@@ -18,7 +18,7 @@ public:
 	uint16_t address = 0x0000;
 	uint8_t opcode = 0x00;
 	uint8_t fetched = 0x00;
-	uint8_t cycles = 0x07;
+	uint64_t cycles = 0x07;
 
 	bool page_crossed = false;
 	bool extra_cycle = false;
