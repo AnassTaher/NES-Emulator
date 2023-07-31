@@ -297,15 +297,15 @@ void CPU::CLC(){
 }
 
 void CPU::CLD(){
-   
+  setFlag(D, false);
 }
 
 void CPU::CLI(){
-   
+  setFlag(I, false);
 }
 
 void CPU::CLV(){
-   
+  setFlag(V, false);
 }
 
 void CPU::CMP(){
