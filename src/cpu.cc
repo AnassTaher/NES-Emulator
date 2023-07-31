@@ -155,6 +155,7 @@ void CPU::cycle(){
 }
 
 uint8_t CPU::fetch(){
+	if(disass_map[opcode] == 1) return A;
 	return read(address);
 }
 
@@ -162,7 +163,7 @@ uint8_t CPU::fetch(){
 // https://www.nesdev.org/wiki/CPU_addressing_modes
 // https://www.nesdev.org/obelisk-6502-guide/addressing.html
 void CPU::IMP(){
-
+	
 }
 
 void CPU::IMM(){
@@ -170,15 +171,15 @@ void CPU::IMM(){
 }
 
 void CPU::ZP0(){
-	address = read(PC) % 256;
+	address = read(PC);
 }
 
 void CPU::ZPX(){
-	address = (read(PC) + X) % 256;
+	address = (read(PC) + X);
 }
 
 void CPU::ZPY(){
-	address = (read(PC) + Y) % 256;
+	address = (read(PC) + Y);
 }
 
 void CPU::REL(){
@@ -247,11 +248,10 @@ void CPU::AND(){
 
 void CPU::ASL(){
 	uint8_t	temp = fetched;
-	if(opcode == 0x0A) temp = A;
 	
 	setFlag(C, temp & (1 << 7));
 	temp <<= 1;
-	setFlag(Z, A == 0);
+	setFlag(Z, temp == 0);
 	setFlag(N, temp & (1 << 7));
 
 	if(opcode == 0x0A) A = temp;
@@ -476,7 +476,15 @@ void CPU::LDY(){
 }
 
 void CPU::LSR(){
-   
+  setFlag(C, fetched & 1);
+	fetched >>= 1;
+	setFlag(Z, fetched == 0);
+	setFlag(N, fetched & (1 << 7));
+
+	if(lookup[opcode].addr == &CPU::IMP)
+		A = fetched;
+	else
+		write(address, fetched);
 }
 
 void CPU::NOP(){
@@ -521,7 +529,11 @@ void CPU::ROR(){
 }
 
 void CPU::RTI(){
-   
+  status = pop();
+	uint8_t low = pop();
+	uint8_t high = pop();
+	PC = (high << 8) | low;
+	setFlag(U, true);
 }
 
 void CPU::RTS(){
