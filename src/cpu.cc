@@ -453,7 +453,7 @@ void CPU::JMP(){
 
 void CPU::JSR(){
 	push(PC >> 8); // upper byte
-	push(PC); // lower byte
+	push(PC + 1); // lower byte
 	PC = (read(PC) | (read(PC + 1) << 8));
 }
 
@@ -528,7 +528,7 @@ void CPU::RTS(){
 	uint8_t low = pop();
 	uint8_t high = pop();
 	// +2: JSR = 3 bytes, PC is already incremented by 1, return to address - 1
-	PC = ((high << 8) | low) + 2; 
+	PC = ((high << 8) | low) + 1; 
 }
 
 void CPU::SBC(){
@@ -550,39 +550,49 @@ void CPU::SEI(){
 }
 
 void CPU::STA(){
-	ram[address] = A;
+	write(address, A);
 }
 
 void CPU::STX(){
-	ram[address] = X;
+	write(address, X);
 }
 
 void CPU::STY(){
-	ram[address] = Y;
+	write(address, Y);
 }
 
 void CPU::TAX(){
-   
+  X = A;
+	setFlag(Z, X == 0);
+	setFlag(N, X & (1 << 7));
 }
 
 void CPU::TAY(){
-   
+  Y = A;
+	setFlag(Z, Y == 0);
+	setFlag(N, Y & (1 << 7));
 }
 
 void CPU::TSX(){
-   
+  X = SP;
+	setFlag(Z, X == 0);
+	setFlag(N, X & (1 << 7));
 }
 
 void CPU::TXA(){
-   
+	A = X;
+	setFlag(Z, A == 0);
+	setFlag(N, A & (1 << 7));
 }
 
 void CPU::TXS(){
-   
+	SP = X;
 }
 
 void CPU::TYA(){
-   
+	A = Y;
+	setFlag(Z, A == 0);
+	setFlag(N, A & (1 << 7));
 }
 
 void CPU::XXX(){
