@@ -29,6 +29,7 @@ N V U B D I Z C
 - Reading CPU: Store contents from ROM into $8000 - $FFFF
 - Get PC from 0xFFFC and 0xFFFD (little endian)
 - Zero page = $0000 - $00FF
+- Overflow in english: overflow if the sign of the result does not match the sign of either input
 
 ---
 
@@ -39,3 +40,4 @@ N V U B D I Z C
   > [NES Test Log](https://www.qmtpro.com/~nes/misc/nestest.nes)
   > [NES Test ROM](https://www.qmtpro.com/~nes/misc/nestest.nes)
 - > [Instructions](https://www.masswerk.at/6502/6502_instruction_set.html)
+- > [Overflow flag](https://forums.nesdev.org/viewtopic.php?t=6331)

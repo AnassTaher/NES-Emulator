@@ -211,12 +211,13 @@ void CPU::IZY(){
 // Instructions
 
 void CPU::ADC(){
-	uint16_t temp = A + fetched + getFlag(C);
-	setFlag(C, temp > 0xFF);
+	uint16_t sum = A + fetched + getFlag(C);
+	setFlag(C, sum > 0xFF);
 	setFlag(Z, A == 0);
-	setFlag(N, temp & (1 << 7));
-	setFlag(V, (~(A ^ fetched) & (A ^ temp)) & 0x80); // no idea whats going on here
-	A = temp & 0xFF;
+	setFlag(N, sum & (1 << 7));
+	
+	setFlag(V, (A ^ sum) & (fetched ^ sum) & 0x80);
+	A = sum & 0xFF; // only keep the lower 8 bits
 }
 
 void CPU::AND(){
@@ -234,7 +235,8 @@ void CPU::BCC(){
 
 	cycles++;
 	uint16_t rel = address + fetched;
-	if((rel & 0xFF00) != (PC & 0xFF00))
+	//check if we're on another page by checking if the high byte is the same, every page is 0xFF bytes
+	if((rel & 0xFF00) != (PC & 0xFF00)) 
 		cycles++;
 
 	PC = rel;
