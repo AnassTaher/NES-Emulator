@@ -229,13 +229,14 @@ void CPU::IZY(){
 // Instructions
 
 void CPU::ADC(){
+
 	uint16_t sum = A + fetched + getFlag(C);
 	setFlag(C, sum > 0xFF);
-	setFlag(Z, A == 0);
 	setFlag(N, sum & (1 << 7));
-	
 	setFlag(V, (A ^ sum) & (fetched ^ sum) & 0x80);
+
 	A = sum & 0xFF; // only keep the lower 8 bits
+	setFlag(Z, A == 0);
 }
 
 void CPU::AND(){
@@ -358,7 +359,7 @@ void CPU::BVC(){
 }
 
 void CPU::BVS(){
-  if(!getFlag(N))
+  if(!getFlag(V))
 		return;
 
 	cycles++;
@@ -483,7 +484,9 @@ void CPU::NOP(){
 }
 
 void CPU::ORA(){
-   
+  A |= fetched;
+	setFlag(Z, A == 0);
+	setFlag(N, A & (1 << 7));
 }
 
 void CPU::PHA(){
@@ -529,7 +532,9 @@ void CPU::RTS(){
 }
 
 void CPU::SBC(){
-   
+	// A - B == A + (-B)
+	fetched = fetched ^ 0xFF;
+	ADC();
 }
 
 void CPU::SEC(){
