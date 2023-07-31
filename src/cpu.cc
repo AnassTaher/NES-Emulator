@@ -126,7 +126,7 @@ uint8_t CPU::pop(){
 
 void CPU::run(){
 	int i = 0;
-	while(i < 1000){
+	while(i < 2000){
 		// if(cycles == 0) i++;
 		cycle();
 		// cycles--;
@@ -521,11 +521,29 @@ void CPU::PLP(){
 }
 
 void CPU::ROL(){
-   
+  uint8_t c = getFlag(C);
+	setFlag(C, fetched & (1 << 7));
+	fetched <<= 1;
+	fetched |= c;
+	setFlag(Z, fetched == 0);
+	setFlag(N, fetched & (1 << 7));
+
+	if(disass_map[opcode] == 1)
+		A = fetched;
+	else
+		write(address, fetched);
 }
 
 void CPU::ROR(){
-   
+	setFlag(C, fetched & 1);
+	fetched >>= 1;
+	fetched |= getFlag(C) << 7;
+	setFlag(Z, fetched == 0);
+	setFlag(N, fetched & (1 << 7));
+	if(disass_map[opcode] == 1)
+		A = fetched;
+	else
+		write(address, fetched);
 }
 
 void CPU::RTI(){
