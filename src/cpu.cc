@@ -125,7 +125,7 @@ uint8_t CPU::pop(){
 
 void CPU::run(){
 	int i = 0;
-	while(i < 21){
+	while(i < 32){
 		// if(cycles == 0) i++;
 		cycle();
 		// cycles--;
@@ -288,15 +288,42 @@ void CPU::BIT(){
 }
 
 void CPU::BMI(){
-   
+  if(!getFlag(N))
+		return;
+
+	cycles++;
+	uint16_t rel = address + fetched;
+
+	if((rel & 0xFF00) != (PC & 0xFF00))
+		cycles++;
+
+	PC = rel;
 }
 
 void CPU::BNE(){
-   
+  if(getFlag(Z))
+		return;
+
+	cycles++;
+	uint16_t rel = address + fetched;
+	
+	if((rel & 0xFF00) != (PC & 0xFF00))
+		cycles++;
+
+	PC = rel;
 }
 
 void CPU::BPL(){
-   
+  if(getFlag(N))
+		return;
+
+	cycles++;
+	uint16_t rel = address + fetched;
+
+	if((rel & 0xFF00) != (PC & 0xFF00))
+		cycles++;
+
+	PC = rel;
 }
 
 void CPU::BRK(){
@@ -304,11 +331,29 @@ void CPU::BRK(){
 }
 
 void CPU::BVC(){
-   
+  if(getFlag(V))
+		return;
+
+	cycles++;
+	uint16_t rel = address + fetched;
+
+	if((rel & 0xFF00) != (PC & 0xFF00))
+		cycles++;
+
+	PC = rel;
 }
 
 void CPU::BVS(){
-   
+  if(!getFlag(N))
+		return;
+
+	cycles++;
+	uint16_t rel = address + fetched;
+
+	if((rel & 0xFF00) != (PC & 0xFF00))
+		cycles++;
+
+	PC = rel;
 }
 
 void CPU::CLC(){
