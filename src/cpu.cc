@@ -487,7 +487,7 @@ void CPU::ORA(){
 }
 
 void CPU::PHA(){
-	push(A & ~(1 << 4)); 
+	push(A); 
 }
 
 void CPU::PHP(){
@@ -504,7 +504,9 @@ void CPU::PLA(){
 
 void CPU::PLP(){
 	// nestest requires status to have unused flag set
-	status = pop() | (1 << U);
+	status = pop();
+	setFlag(U, true);
+	setFlag(B, false);
 }
 
 void CPU::ROL(){
