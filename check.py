@@ -1,5 +1,6 @@
 from termcolor import colored
 
+lookup = ["Address:", "Instruction", "Bytes", "A =", "X =", "Y =", "P =", "SP =", "CYC ="]
 
 
 def disass_nes(line):
@@ -93,6 +94,10 @@ def main():
       for i in range(len(main_results)):
         color = "red" if i == code else "yellow"
         print(colored(f"{main_results[i]} ", color), end="")
+      print("\n")
+      print(colored("Correct: " + lookup[code] + " " + nes_results[code], "green"))
+      print('-' * str_len)
+      print(colored("Yours: " + lookup[code] + " " + main_results[code], "red"))
       print()
       exit(1)
     

@@ -126,7 +126,7 @@ uint8_t CPU::pop(){
 
 void CPU::run(){
 	int i = 0;
-	while(i < 500){
+	while(i < 1000){
 		// if(cycles == 0) i++;
 		cycle();
 		// cycles--;
