@@ -23,6 +23,8 @@ $(ODIR)/%.o: $(SRCDIR)/%.cc
 main: $(OBJ) $(ODIR)/main.o
 	$(CXX) -o $@ $^ $(ccFLAGS) $(LIBS)
 
+check:
+	python3 check.py
 
 clean:
 	-rm -f $(ODIR)/*.o *~ core.* $(INCDIR)/*~

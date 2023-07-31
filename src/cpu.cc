@@ -1,4 +1,5 @@
 #include "cpu.hpp"
+#include <iomanip>
 
 
 using namespace std;
@@ -125,7 +126,7 @@ uint8_t CPU::pop(){
 
 void CPU::run(){
 	int i = 0;
-	while(i < 40){
+	while(i < 74){
 		// if(cycles == 0) i++;
 		cycle();
 		// cycles--;
@@ -455,19 +456,23 @@ void CPU::ORA(){
 }
 
 void CPU::PHA(){
-   
+  push(A);
 }
 
 void CPU::PHP(){
-   
+	// B flag is always set when pushing to stack from non-interrupts
+	// https://www.nesdev.org/wiki/Status_flags#The_B_flag
+  push(status | (1 << B));
 }
 
 void CPU::PLA(){
-   
+	A = pop();
+	setFlag(Z, A == 0);
+	setFlag(N, A & (1 << 7));
 }
 
 void CPU::PLP(){
-   
+	status = pop();
 }
 
 void CPU::ROL(){
@@ -483,7 +488,10 @@ void CPU::RTI(){
 }
 
 void CPU::RTS(){
-   
+	uint8_t low = pop();
+	uint8_t high = pop();
+	// +2: JSR = 3 bytes, PC is already incremented by 1, return to address - 1
+	PC = ((high << 8) | low) + 2; 
 }
 
 void CPU::SBC(){
