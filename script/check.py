@@ -1,26 +1,32 @@
 from termcolor import colored
 
+
+
 def disass_nes(line):
   res = []
   line = [i.strip() for i in line.split('  ') if i]
-  res.append(line[0]) # PC
-  res.append(line[1]) # instruction bytes
-  res.append(line[2]) # instruction string
+  # PC -> ins bytes -> ins string
+  res.extend(line[:3])
   registers = line[3].split(' ')
 
   for i in range(5):
     res.append(registers[i].split(':')[1]) # A:00 X:00 Y:00 P:24 SP:FD
-  res.append(line[4].split(':')[1])
 
+
+
+  cycle_el = line[-1]
+  index = cycle_el.index('CYC:')
+  cycles = cycle_el[index + 4:]
+  res.append(cycles)
+  
   return res
 
 def disass_main(line):
   res = []
   line = [i.strip() for i in line.split('  ') if i]
-  # print(line)
-  res.append(line[0]) # PC
-  res.append(line[1]) # instruction bytes
-  res.append(line[2]) # instruction string
+  
+  res.extend(line[:3])
+
   registers = line[3].split(' ')
   for i in range(5):
     res.append(registers[i].strip().split(':')[1])
@@ -60,13 +66,12 @@ def main():
 
   # A:00 X:00 Y:00 P:24 SP:FD CYC: 7
   
-  # loop through each line
 
   for i, main_l in enumerate(main):
     nes_l = nestest.readline().strip()
     main_l = main_l.strip()
-
     nes_results = disass_nes(nes_l)
+
     main_results = disass_main(main_l)  
     code = check_same(nes_results, main_results)
 
@@ -90,6 +95,7 @@ def main():
         print(colored(f"{main_results[i]} ", color), end="")
       print()
       exit(1)
+    
 
 
   print(colored("\nALL TESTS PASSED!\n", "green"))

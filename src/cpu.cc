@@ -125,7 +125,7 @@ uint8_t CPU::pop(){
 
 void CPU::run(){
 	int i = 0;
-	while(i < 32){
+	while(i < 40){
 		// if(cycles == 0) i++;
 		cycle();
 		// cycles--;
@@ -284,7 +284,9 @@ void CPU::BEQ(){
 }
 
 void CPU::BIT(){
-   
+  setFlag(Z, (A & fetched) == 0);
+	setFlag(V, fetched & (1 << 6));
+	setFlag(N, fetched & (1 << 7));
 }
 
 void CPU::BMI(){
