@@ -124,6 +124,19 @@ uint8_t CPU::pop(){
 	return read(0x100 + SP);
 }
 
+void CPU::branch(){
+
+	cycles++;
+
+	// prevent crossing page boundary
+	address = PC + branch_address;
+	//check if we're on another page by checking if the high byte is the same, every page is 0xFF bytes
+	if((address & 0xFF00) != ((PC + 1) & 0xFF00))
+		cycles++;
+
+	PC = address;
+}
+
 void CPU::run(){
 	int i = 0;
 	while(i < 2000){
@@ -183,7 +196,9 @@ void CPU::ZPY(){
 }
 
 void CPU::REL(){
-	address = PC;
+	branch_address = read(PC);
+	if(branch_address & 0x80) 
+		branch_address |= 0xFF00;
 }
 
 void CPU::ABS(){
@@ -206,24 +221,40 @@ void CPU::ABY(){
 
 void CPU::IND(){
 
-	uint16_t ptr = (read(PC) | read(PC + 1) << 8);
+	uint16_t ind_address = read(PC);
+	
+	uint16_t low = read((ind_address + X) % 256);
+	uint16_t high = read((ind_address + X + 1) % 256);
 
+	address = low | (high << 8);
 	// https://www.nesdev.org/6502bugs.txt
-	if(read(PC) == 0x00FF) // if at the end of a page
-		address = read(ptr) | (read(ptr & 0xFF00) << 8);
+	if(low == 0x00FF) // if at the end of a page
+		address = (read(address)) | (read(address & 0xFF00) << 8);
 	else
-		address = read(ptr) | read(ptr + 1) << 8;
+		address = (read(address)) | (read(address + 1) << 8);
 
 }
 
 void CPU::IZX(){
-	address = (read(PC + X) | read(PC + X + 1) << 8);
+	// address = (read(PC + X) | read(PC + X + 1) << 8);
+	// PEEK(PEEK((arg + X) % 256) + PEEK((arg + X + 1) % 256) * 256)
+	uint16_t ind_address = read(PC);
+	
+	uint16_t low = read((ind_address + X) % 256);
+	uint16_t high = read((ind_address + X + 1) % 256);
+
+	address = low | (high << 8);
 }
 
 void CPU::IZY(){
-	address = (read(PC + Y) | read(PC + Y + 1) << 8);
+	uint16_t ind_address = read(PC);
+	
+	uint16_t low = read((ind_address) % 256);
+	uint16_t high = read((ind_address + 1) % 256);
+	address = low | (high << 8);
+	address += Y;
 
-	if((address & 0xFF00) != (read(PC + 1) << 8)) 
+	if((address & 0xFF00) != (high << 8)) 
 		page_crossed = true;
 }
 
@@ -263,37 +294,21 @@ void CPU::BCC(){
 	if(getFlag(C))
 		return;
 
-	cycles++;
-	uint16_t rel = address + fetched;
-	//check if we're on another page by checking if the high byte is the same, every page is 0xFF bytes
-	if((rel & 0xFF00) != (PC & 0xFF00)) 
-		cycles++;
-
-	PC = rel;
+	branch();
 }
 
 void CPU::BCS(){
 	if(!getFlag(C))
 		return;
 
-	cycles++;
-	uint16_t rel = address + fetched;
-	if((rel & 0xFF00) != (PC & 0xFF00))
-		cycles++;
-
-	PC = rel;
+	branch();
 }
 
 void CPU::BEQ(){
 	if(!getFlag(Z))
 		return;
 
-	cycles++;
-	uint16_t rel = address + fetched;
-	if((rel & 0xFF00) != (PC & 0xFF00))
-		cycles++;
-
-	PC = rel;
+	branch();
 }
 
 void CPU::BIT(){
@@ -306,39 +321,21 @@ void CPU::BMI(){
   if(!getFlag(N))
 		return;
 
-	cycles++;
-	uint16_t rel = address + fetched;
-
-	if((rel & 0xFF00) != (PC & 0xFF00))
-		cycles++;
-
-	PC = rel;
+	branch();
 }
 
 void CPU::BNE(){
   if(getFlag(Z))
 		return;
 
-	cycles++;
-	uint16_t rel = address + fetched;
-	
-	if((rel & 0xFF00) != (PC & 0xFF00))
-		cycles++;
-
-	PC = rel;
+	branch();
 }
 
 void CPU::BPL(){
   if(getFlag(N))
 		return;
 
-	cycles++;
-	uint16_t rel = address + fetched;
-
-	if((rel & 0xFF00) != (PC & 0xFF00))
-		cycles++;
-
-	PC = rel;
+	branch();
 }
 
 void CPU::BRK(){
@@ -349,26 +346,14 @@ void CPU::BVC(){
   if(getFlag(V))
 		return;
 
-	cycles++;
-	uint16_t rel = address + fetched;
-
-	if((rel & 0xFF00) != (PC & 0xFF00))
-		cycles++;
-
-	PC = rel;
+	branch();
 }
 
 void CPU::BVS(){
   if(!getFlag(V))
 		return;
 
-	cycles++;
-	uint16_t rel = address + fetched;
-
-	if((rel & 0xFF00) != (PC & 0xFF00))
-		cycles++;
-
-	PC = rel;
+	branch();
 }
 
 void CPU::CLC(){
@@ -452,9 +437,9 @@ void CPU::JMP(){
 }
 
 void CPU::JSR(){
-	push(PC >> 8); // upper byte
-	push(PC + 1); // lower byte
-	PC = (read(PC) | (read(PC + 1) << 8));
+	push((PC >> 8) % 256); // upper byte
+	push((PC + 1) % 256); // lower byte
+	PC = read(PC) | (read(PC + 1) << 8);
 }
 
 void CPU::LDA(){
@@ -535,15 +520,14 @@ void CPU::ROL(){
 }
 
 void CPU::ROR(){
-	setFlag(C, fetched & 1);
-	fetched >>= 1;
-	fetched |= getFlag(C) << 7;
-	setFlag(Z, fetched == 0);
-	setFlag(N, fetched & (1 << 7));
-	if(disass_map[opcode] == 1)
-		A = fetched;
+	uint16_t temp = (uint16_t)(getFlag(C) << 7) | (fetched >> 1);
+	setFlag(C, fetched & 0x01);
+	setFlag(Z, (temp & 0x00FF) == 0x00);
+	setFlag(N, temp & 0x0080);
+	if (disass_map[opcode] == 1)
+		A = temp & 0x00FF;
 	else
-		write(address, fetched);
+		write(address, temp & 0x00FF);
 }
 
 void CPU::RTI(){

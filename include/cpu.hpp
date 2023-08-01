@@ -16,6 +16,7 @@ public:
 
 	std::vector<uint8_t> ram;
 	uint16_t address = 0x0000;
+	uint16_t branch_address = 0x0000;
 	uint8_t opcode = 0x00;
 	uint8_t fetched = 0x00;
 	uint64_t cycles = 0x07;
@@ -27,19 +28,23 @@ public:
 	void setFlag(Flags flag, bool value);
 	bool getFlag(Flags flag);
 	void toggleFlag(Flags flag);
-	void printStatus();
-	void printHex(std::string s, uint16_t to_print, std::string delimiter);
 
 	void run();
 	void cycle();
-	uint8_t fetch();
-	void readHeader(FILE* fp);
 	void reset();
-	void push(uint8_t data);
-	uint8_t pop();
 	uint8_t read(uint16_t address);
 	void write(uint16_t address, uint8_t data);
+	uint8_t fetch();
+	void push(uint8_t data);
+	uint8_t pop();
+
+	void branch();
+
+	void printStatus();
+	void printHex(std::string s, uint16_t to_print, std::string delimiter);
+	void readHeader(FILE* fp);
 	void loadRom(FILE* fp);
+
 
 	void log();
 
