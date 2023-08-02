@@ -43,38 +43,41 @@ CPU::CPU(){
 
 void CPU::run(){
 	int i = 0;
-	while(PC != 0xC66E){
+	int j = 0;
+	while(j < 15){
 		tick();
-		if(executed()) i++;
+		if(executed()){
+			i++;
+		}
 		cycles--;
+		j++;
 	}
 }
 
 void CPU::tick(){
-	if(cycles == 0){
-		page_crossed = false;
-		setFlag(U, true);
-		cycles = lookup[opcode].cycles;
-		opcode = read(PC);
+	if(cycles != 0) return;
 
-		log_pc = PC;
-		PC++;
+	// set log vars
+	page_crossed = false;
+	log_pc = PC;
+	setFlag(U, true);
 
-		log();
-		(this->*lookup[opcode].addr)();
-		fetch();
-		(this->*lookup[opcode].op)();
+	opcode = read(PC++);
 
-		if(cyc_ins.count(lookup[opcode].name) && page_crossed)
-			cycles++;
-		log_cycles += cycles;
-	}
+	log();
+	(this->*lookup[opcode].addr)();
+	fetch();
+	(this->*lookup[opcode].op)();
+
+	cycles += lookup[opcode].cycles;
+	if(cyc_ins.count(lookup[opcode].name) && page_crossed)
+		cycles++;
+	log_cycles += cycles;
+	
 }
 
 void CPU::reset(){
-
 	PC = read(0xFFFC) | (read(0xFFFC + 1) << 8);
-
 	A = X = Y = 0;
 	SP = 0xFD;
 	status = 0x24;
@@ -82,6 +85,7 @@ void CPU::reset(){
 	rel = 0x0000;
 	address = 0x0000;
 	fetched = 0x00;
+
 	cycles = log_cycles = 7;
 }
 

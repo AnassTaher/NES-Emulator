@@ -117,7 +117,8 @@ def main():
 
   for i, main_l in enumerate(main):
     main_l = main_l.strip()
-    if i >= 8991:
+    if "0x2h" in main_l or "0x3h" in main_l:
+      print(main_l)
       continue
 
     nes_l = nestest.readline().strip()
