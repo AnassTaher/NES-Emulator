@@ -9,7 +9,7 @@ OBJ = $(filter-out $(ODIR)/main.o,$(_OBJ))
 EXEC = main
 
 CXX = g++
-override ccFLAGS+=-I$(IDIR) -g -Wall -Wpedantic -std=c++11 -Wformat-extra-args -fPIE -Wno-deprecated
+override ccFLAGS+=-I$(IDIR) -g -Wall -Wpedantic -std=c++17 -Wformat-extra-args -fPIE -Wno-deprecated
 
 DEPS2 := $(OBJ:.o=.d)
 
