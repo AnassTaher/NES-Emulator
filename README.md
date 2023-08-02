@@ -16,7 +16,7 @@ Clone down this repository. You will need `make`, `g++`, `python3` installed on 
 
 Clone:
 
-`git clone https://github.com/AnassTaher/NES-Emulator.git`  
+`git clone https://github.com/AnassTaher/NES-Emulator`  
 
 Install:  
 
