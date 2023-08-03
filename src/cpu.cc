@@ -529,21 +529,45 @@ void CPU::TYA(){
 	
 }
 
-// This function captures illegal opcodes
 void CPU::KIL(){
+	// also known as JAM or HLT
 	std::cout << "KIL" << std::endl;
 	exit(0);
 	
 }
 
 // illegal opcodes:
-// opcodes that are not tested in nestest are not implemented
 
-void CPU::AHX(){}
-void CPU::ALR(){}
-void CPU::ANC(){}
-void CPU::ARR(){}
-void CPU::AXS(){}
+void CPU::AHX(){
+	write(address, A & X & (address >> 8 + 1));
+}
+
+void CPU::ALR(){
+	// also known as ASR
+	AND();
+	fetch();
+	LSR();
+}
+
+void CPU::ANC(){
+	AND();
+	fetch();
+	ROL();
+}
+
+void CPU::ARR(){
+	AND();
+	fetch();
+	ROR();
+}
+
+void CPU::AXS(){
+	// also known as SAX
+	// A & X - M -> X
+	X = (A & X) - fetched;
+	setFlag(Z, X == 0);
+	setFlag(N, X & (1 << 7));
+}
 
 void CPU::DCP(){
 	DEC();
@@ -558,7 +582,12 @@ void CPU::ISC(){
 	SBC();
 }
 
-void CPU::LAS(){}
+void CPU::LAS(){
+	// also known as LAR
+	SP = fetched & SP;
+	A = SP;
+	X = SP;
+}
 
 void CPU::LAX(){
 	LDA();
@@ -570,16 +599,24 @@ void CPU::SAX(){
 	write(address, A & X);
 }
 
-void CPU::SHX(){}
-void CPU::SHY(){}
+void CPU::SHX(){
+	// also known as A11
+	write(address, X & (address >> 8 + 1));
+}
+void CPU::SHY(){
+	// also known as A11
+	write(address, Y & (address >> 8 + 1));
+}
 
 void CPU::SLO(){
+	// also known as ASO
 	ASL();
 	fetch();
 	ORA();
 }
 
 void CPU::SRE(){
+	// also known as LSE
 	LSR();
 	fetch();
 	EOR();
@@ -597,6 +634,14 @@ void CPU::RRA(){
 	ADC();
 }
 
-void CPU::TAS(){}
-void CPU::XAA(){}
+void CPU::TAS(){
+	// also known as SHS
+	SP = A & X;
+	write(address, SP & (address >> 8 + 1));
+}
+void CPU::XAA(){
+	TXA();
+	fetch();
+	AND();
+}
 
