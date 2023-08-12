@@ -32,7 +32,7 @@ void CPU::branch(){
 	PC = address;
 }
 
-bool CPU::getFlag(StatusFlags f){
+bool CPU::getFlag(StatusFlags f) const{
 	return status & (1 << f);
 }
 
@@ -43,7 +43,28 @@ void CPU::setFlag(StatusFlags f, bool v){
     status = status & ~(1 << f);
 }
 
-bool CPU::executed(){
+bool CPU::setup(){
+	std::cout << "Enter file:";
+	std::string inputFile;
+	std::cin >> inputFile;
+
+	std::cout << "Debug? (y/n):";
+	std::string flag;
+	std::cin >> flag;
+    std::cout << endl;
+	if(flag == "y") debug = true;
+
+	FILE* fp = fopen(("tests/" + inputFile).c_str(), "rb");
+	if(fp == nullptr){
+			std::cout << "Could not find file: " << inputFile << "\n";
+			return false;
+	}
+	loadRom(fp);
+	fclose(fp);
+	return true;
+}
+
+bool CPU::executed() const{
 	return cycles == 0;
 }
 
@@ -101,7 +122,7 @@ void CPU::log(){
 
 uint8_t CPU::disass_bytes(){
 
-	void(CPU::*adr)(void) = lookup[opcode].addr;
+	void(CPU::*adr)() = lookup[opcode].addr;
 	
 	if(adr == &CPU::IMP){
 		return 1;
