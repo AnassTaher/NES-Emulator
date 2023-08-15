@@ -5,21 +5,21 @@
 using namespace std;
 
 uint8_t CPU::read(uint16_t a){
-	return ram[a];
+	return bus.read(a);
 }
 
 void CPU::write(uint16_t a, uint8_t d){
-	ram[a] = d;
+	bus.write(a, d);
 }
 
 void CPU::push(uint8_t v){
-	write(0x100 + SP, v);
+	write(0x0100 + SP, v);
 	SP--;
 }
 
 uint8_t CPU::pop(){
 	SP++;
-	return read(0x100 + SP);
+	return read(0x0100 + SP);
 }
 
 void CPU::branch(){
@@ -77,6 +77,7 @@ void CPU::loadRom(FILE* fp){
 	readHeader(fp);
 
 	uint64_t size = (header.prg_rom_size * 0x4000);
+	cout << "PRG ROM size: " << size << "\n";
 	uint8_t* program = new uint8_t[size];
 	fread(program, sizeof(uint8_t), size, fp);
 
@@ -85,7 +86,7 @@ void CPU::loadRom(FILE* fp){
 		// mirror only if one 16k bank
 		if(header.prg_rom_size == 1) write(0xC000 + i, program[i]);
 	}
-
+	// print the first 3 bytes
 }
 
 void CPU::log(){

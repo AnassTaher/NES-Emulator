@@ -3,18 +3,23 @@
 #include <vector>
 #include <string>
 #include <map>
+#include "bus.hpp"
+
+class Bus;
 
 class CPU{
 public:
-    CPU();
+    CPU(Bus b);
 
     uint8_t  A      = 0x00;
     uint8_t  X      = 0x00;
     uint8_t  Y      = 0x00;
-    uint8_t  SP   = 0x00;
+    uint8_t  SP     = 0x00;
     uint16_t PC     = 0x0000;
     uint8_t  status = 0x00;
     std::vector<uint8_t> ram;
+
+    Bus bus;
 
     void run();
     void reset();

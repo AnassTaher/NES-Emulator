@@ -3,9 +3,9 @@
 
 using namespace std;
 
+CPU::CPU(Bus b){
 
-CPU::CPU(){
-
+    bus = b;
     using a = CPU;
     lookup =
             {
@@ -44,12 +44,13 @@ CPU::CPU(){
 void CPU::run(){
     int i = 0;
     while(PC != 0xC66E){
-        tick();
         if(executed()){
             i++;
         }
+        tick();
         cycles--;
     }
+    log();
 }
 
 void CPU::tick(){
